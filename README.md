@@ -2,122 +2,142 @@
 
 ## 1. Overview
 
-This project implements a hybrid database system that combines two storage engines:
+This project implements a hybrid database system that combines:
 
-* RocksDB (LSM-tree based) for efficient write-heavy workloads
-* LMDB (B+ tree based) for efficient read-heavy workloads
+* RocksDB (LSM-tree) for high write throughput
+* LMDB (B+ tree) for efficient read operations
 
-The system dynamically adapts to workload patterns using a monitoring and decision layer, aiming to balance write throughput and read latency.
-
----
-
-## 2. Objectives
-
-* Reduce write amplification in write-heavy scenarios
-* Improve read latency in read-heavy scenarios
-* Provide a unified interface over two fundamentally different storage engines
-* Enable workload-aware adaptive behavior
+The system is designed to analyze workload patterns and optimize performance by leveraging the strengths of both storage engines.
 
 ---
 
-## 3. Project Structure
+## 2. Key Idea
 
-### Core Components
+Modern databases face a trade-off:
+
+* Write-optimized systems (LSM trees)
+* Read-optimized systems (B+ trees)
+
+This project provides a unified system that:
+
+* Monitors workload behavior
+* Adapts storage strategy
+* Enables comparative evaluation of performance
+
+---
+
+## 2.5 Research Paper
+
+This project is accompanied by a detailed research paper that explains the system design, methodology, and experimental evaluation.
+
+The paper covers:
+
+* The motivation behind combining LSM-tree and B+ tree architectures
+* Design of the dual indexing system
+* Workload-aware adaptation strategy
+* Performance evaluation and benchmarking results
+* Trade-off analysis between write and read optimization
+
+### Access the Paper
+
+You can view the full research paper here:
+
+[Download Research Paper](./researchPaper.pdf)
+
+### Citation
+
+If you use this work in your research, please cite it as:
+
+```
+Author(s), "Dual Indexing Database System: Balancing Write and Read Performance 
+Using RocksDB and LMDB", 2026.
+```
+
+### Notes
+
+* The paper is written in IEEE format
+* It includes system architecture, experimental results, and analysis
+* Recommended for understanding the theoretical foundation of this project
+
+
+## 3. Repository Structure
+
+### Core Headers
 
 * `StorageManager.h`
-  Handles interaction with both RocksDB and LMDB. Provides unified APIs for read/write operations.
+  Provides abstraction for database operations across different storage backends.
 
 * `WorkloadMonitor.h`
-  Tracks runtime workload characteristics such as read/write ratio and access frequency.
+  Tracks workload characteristics such as read/write distribution.
 
 ---
 
-### Engine and System Logic
-
-* `adaptive_db/`
-  Contains logic for adapting database behavior based on workload patterns.
-
-* `hybrid_engine/`
-  Implements the decision-making layer that determines where data should be stored or migrated.
-
----
-
-### Baseline and Comparison
-
-* `baseline_rocksdb/`
-  Pure RocksDB implementation used as a baseline for comparison.
-
-* `compare_db/`
-  Utilities for comparing different database strategies and configurations.
-
-* `compare_baseline.cpp`
-  Compares baseline RocksDB performance against the hybrid system.
-
----
-
-### Benchmarking and Profiling
-
-* `benchmark/`
-  Benchmark framework for evaluating system performance.
-
-* `benchmark2.cpp`
-  Extended benchmarking scenarios.
-
-* `concurrency_profiler.cpp`
-  Measures system behavior under concurrent workloads.
-
-* `profiler/`
-  Additional profiling utilities.
-
----
-
-### Testing and Stress
-
-* `test_monitor.cpp`
-  Tests correctness of workload monitoring logic.
-
-* `sprint5/`
-  Contains experimental or development-stage implementations.
-
-* `sprint5_stress.cpp`
-  Stress testing under high-load conditions.
-
----
-
-### Entry Point
+### Main Execution
 
 * `main.cpp`
-  Main driver program that initializes and runs the hybrid database system.
+  Entry point of the system. Initializes components and runs the database workflow.
 
 ---
 
-### Output Files
+### Benchmarking and Evaluation
+
+* `benchmark2.cpp`
+  Executes benchmark scenarios to evaluate performance.
+
+* `compare_baseline.cpp`
+  Compares hybrid system behavior with baseline implementations.
+
+---
+
+### Profiling and Analysis
+
+* `concurrency_profiler.cpp`
+  Evaluates performance under concurrent workloads.
+
+---
+
+### Testing
+
+* `test_monitor.cpp`
+  Validates workload monitoring functionality.
+
+---
+
+### Stress Testing
+
+* `sprint5_stress.cpp`
+  Simulates heavy workload conditions to test system stability.
+
+---
+
+### Baseline Implementation
+
+* `baseline_rocksdb/`
+  Contains standalone RocksDB-based implementation for comparison.
+
+---
+
+### Output Data
 
 * `telemetry.csv`
-  Stores runtime metrics such as latency, throughput, and system behavior.
+  Stores runtime metrics such as latency and throughput.
 
 * `workload_trace.csv`
   Logs workload patterns for analysis.
 
 ---
 
-### Ignored Runtime Data
+### Configuration
 
-The following directories are generated at runtime and excluded using `.gitignore`:
-
-* `data_lmdb/`
-* `data_rocks/`
-* `lmdb_ts/`
-* `rocks_ts/`
-
-These contain database files and logs and should not be committed.
+* `.gitignore`
+  Excludes generated database files and logs.
 
 ---
 
 ## 4. Prerequisites
 
 * Linux / WSL environment
-* g++ with C++17 support
+* g++ compiler with C++17 support
 * RocksDB installed
 * LMDB installed
 
@@ -125,7 +145,7 @@ These contain database files and logs and should not be committed.
 
 ## 5. Installation
 
-### Install dependencies (Ubuntu/WSL)
+### Install dependencies
 
 ```bash
 sudo apt update
@@ -145,7 +165,7 @@ g++ -std=c++17 main.cpp -o db_system \
 
 ---
 
-## 7. Execution
+## 7. Running the System
 
 ```bash
 ./db_system
@@ -153,7 +173,17 @@ g++ -std=c++17 main.cpp -o db_system \
 
 ---
 
-## 8. Running Benchmarks and compare it with rockDB
+## 8. Running Benchmarks it will generate the baseline result
+
+```bash
+g++ -std=c++17 benchmark2.cpp -o benchmark \
+    -lrocksdb -llmdb -lpthread
+
+./benchmark
+```
+
+---
+## 8. Running Benchmarks it will compare the result with baseline
 
 ```bash
 g++ -std=c++17 compare_baseline.cpp -o benchmark \
@@ -163,7 +193,6 @@ g++ -std=c++17 compare_baseline.cpp -o benchmark \
 ```
 
 ---
-
 ## 9. Running Stress Tests
 
 ```bash
@@ -175,39 +204,49 @@ g++ -std=c++17 sprint5_stress.cpp -o stress \
 
 ---
 
-## 10. System Workflow
+## 10. Running Profiling
 
-1. Data is initially written to RocksDB for high write throughput
-2. The workload monitor continuously tracks access patterns
-3. Frequently accessed data is identified
-4. The hybrid engine may migrate hot data to LMDB for faster reads
-5. Telemetry and workload logs are generated for analysis
+```bash
+g++ -std=c++17 concurrency_profiler.cpp -o profiler \
+    -lrocksdb -llmdb -lpthread
 
----
-
-## 11. Notes
-
-* Database files are large and automatically generated; they are excluded from version control
-* Ensure sufficient disk space before running benchmarks or stress tests
-* Performance depends on workload distribution and system configuration
+./profiler
+```
 
 ---
 
-## 12. Future Improvements
+## 11. System Workflow
 
-* Cost-based adaptive switching model
+1. Data is written to the storage layer
+2. WorkloadMonitor tracks access patterns
+3. Performance metrics are recorded in telemetry.csv
+4. Benchmark and profiling tools analyze system behavior
+
+---
+
+## 12. Notes
+
+* Database files are generated at runtime and are excluded from version control
+* Ensure sufficient disk space before running large benchmarks
+* Performance depends on workload characteristics
+
+---
+
+## 13. Future Work
+
+* Adaptive switching between storage engines
+* Cost-based optimization
 * Machine learning-based workload prediction
-* Automated migration policies
-* Distributed extension of the hybrid system
+* Distributed system extension
 
 ---
 
-## 13. Author
+## 14. Author
 
 * Your Name
 
 ---
 
-## 14. License
+## 15. License
 
 This project is intended for academic and research purposes.
