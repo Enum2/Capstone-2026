@@ -243,7 +243,7 @@ g++ -std=c++17 concurrency_profiler.cpp -o profiler \
 
 ## 14. Author
 
-* Your Name
+* sujal suryawanshi
 
 ---
 
