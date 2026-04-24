@@ -30,12 +30,12 @@ private:
     std::atomic<bool> is_migrating{false};
     std::shared_mutex index_rw_lock; 
 
-    // 🔥 TASK 5.3: Telemetry Logger
+
     std::ofstream telemetry_csv;
     std::mutex telemetry_mutex;
-    std::chrono::steady_clock::time_point start_time;  // ✅ FIXED
+    std::chrono::steady_clock::time_point start_time;  
 
-    // 🔥 TASK 5.1: RAM Guard
+
     bool check_ram_safety() {
         std::ifstream meminfo("/proc/meminfo");
         std::string line;
@@ -54,16 +54,16 @@ private:
         if (is_migrating) return;
         
         if (!check_ram_safety()) {
-            std::cout << "[RAM GUARD] 🛑 Aborting Migration! System RAM usage is >90%.\n";
+            std::cout << "[RAM GUARD]  Aborting Migration! System RAM usage is >90%.\n";
             return;
         }
         
-        std::cout << "\n[MIGRATION] ⏸️ Phase 1: Snapping RocksDB state...\n";
+        std::cout << "\n[MIGRATION]  Phase 1: Snapping RocksDB state...\n";
         auto mig_start = std::chrono::high_resolution_clock::now();
         const rocksdb::Snapshot* snapshot = rocks_db->GetSnapshot();
         
         is_migrating = true; 
-        std::cout << "[MIGRATION] 🔀 Phase 2: Dual-write enabled. Building index...\n";
+        std::cout << "[MIGRATION]  Phase 2: Dual-write enabled. Building index...\n";
 
         rocksdb::ReadOptions read_opts;
         read_opts.snapshot = snapshot;
@@ -97,7 +97,7 @@ private:
         
         auto mig_end = std::chrono::high_resolution_clock::now();
         double mig_time = std::chrono::duration_cast<std::chrono::milliseconds>(mig_end - mig_start).count();
-        std::cout << "[MIGRATION] ✅ Phase 3: LMDB Built (" << count << " keys) in " << mig_time << " ms.\n";
+        std::cout << "[MIGRATION]  Phase 3: LMDB Built (" << count << " keys) in " << mig_time << " ms.\n";
     }
 
     void drop_lmdb_index() {
@@ -105,7 +105,7 @@ private:
         std::unique_lock<std::shared_mutex> lock(index_rw_lock);
         is_lmdb_ready = false;
         is_migrating = false;
-        std::cout << "[SYSTEM] 🗑️ Dropping LMDB Index to save RAM.\n";
+        std::cout << "[SYSTEM]  Dropping LMDB Index to save RAM.\n";
         
         MDB_txn* txn;
         mdb_txn_begin(lmdb_env, NULL, 0, &txn);
@@ -114,7 +114,7 @@ private:
     }
 
 public:
-    StorageManager() : monitor(2000), start_time(std::chrono::steady_clock::now()) {  // ✅ INIT FIX
+    StorageManager() : monitor(2000), start_time(std::chrono::steady_clock::now()) {  
         telemetry_csv.open("telemetry.csv");
         telemetry_csv << "Timestamp_ms,Engine,Latency_us,Operation\n";
 
