@@ -25,7 +25,7 @@ private:
     const int W = 5; 
     const int K = 3; 
     
-    // 🔥 TASK 5.2: Stability Hysteresis (10 Seconds)
+
     const int MIN_RESIDENCE_TIME_SEC = 10;
     std::chrono::steady_clock::time_point last_transition_time;
 
@@ -67,12 +67,12 @@ private:
             if (current_state != WorkloadState::READ_HEAVY && high_count >= K) {
                 current_state = WorkloadState::READ_HEAVY;
                 last_transition_time = now;
-                std::cout << "\n[BRAIN] 🔥 MIGRATION TRIGGERED! Workload is Read-Heavy.\n";
+                std::cout << "\n[BRAIN]  MIGRATION TRIGGERED! Workload is Read-Heavy.\n";
             } 
             else if (current_state == WorkloadState::READ_HEAVY && ratio < T_LOW) {
                 current_state = WorkloadState::WRITE_HEAVY;
                 last_transition_time = now;
-                std::cout << "\n[BRAIN] 📉 REVERTING. Workload became Write-Heavy. Dropping Index.\n";
+                std::cout << "\n[BRAIN]  REVERTING. Workload became Write-Heavy. Dropping Index.\n";
                 history.assign(W, 0.0); 
             }
         }
