@@ -43,7 +43,7 @@ vector<Operation> generate_workload(int num_ops) {
         if (ratio_dist(rng) <= 85) { 
             op.type = SCAN;
             op.key_start = format_key(k);
-            op.key_end = format_key(k + 1000); // 🔥 THE HIGHWAY: 1,000 Key Scan Range
+            op.key_end = format_key(k + 1000); //  THE HIGHWAY: 1,000 Key Scan Range
         } else { 
             op.type = WRITE;
             op.key_start = format_key(k);
@@ -56,7 +56,7 @@ vector<Operation> generate_workload(int num_ops) {
 
 int main() {
     cout << "========================================================\n";
-    cout << "📊 HEAD-TO-HEAD: PURE ROCKSDB vs ADAPTIVE ENGINE\n";
+    cout << " HEAD-TO-HEAD: PURE ROCKSDB vs ADAPTIVE ENGINE\n";
     cout << "========================================================\n";
 
     // 🧹 WIPE OLD DATA TO ENSURE A FAIR TEST
@@ -66,7 +66,7 @@ int main() {
     std::filesystem::remove_all("data_lmdb");
 
     int initial_keys = 100000;
-    int workload_ops = 100000; // 🔥 INCREASED: 100k operations to ensure migration payoff
+    int workload_ops = 100000; // INCREASED: 100k operations to ensure migration payoff
     auto workload = generate_workload(workload_ops);
 
     // ---------------------------------------------------------
@@ -101,13 +101,13 @@ int main() {
         progress_1++;
         if (progress_1 % 10000 == 0) cout << "  ... " << progress_1 << " / " << workload_ops << " ops completed\n";
         
-        // 🔥 FASTER SLEEP: 10 microseconds so we aren't waiting all day
+        //  FASTER SLEEP: 10 microseconds so we aren't waiting all day
         std::this_thread::sleep_for(std::chrono::microseconds(10)); 
     }
     
     auto end_baseline = high_resolution_clock::now();
     double baseline_ms = duration_cast<milliseconds>(end_baseline - start_baseline).count();
-    cout << "⏱️ Pure RocksDB Total Time: " << baseline_ms << " ms\n";
+    cout << " Pure RocksDB Total Time: " << baseline_ms << " ms\n";
     delete raw_db;
 
     // ---------------------------------------------------------
@@ -148,7 +148,7 @@ int main() {
     // THE FINAL VERDICT
     // ---------------------------------------------------------
     cout << "\n========================================================\n";
-    cout << "🏆 FINAL VERDICT\n";
+    cout << " FINAL VERDICT\n";
     cout << "========================================================\n";
     cout << "Pure RocksDB:    " << baseline_ms << " ms\n";
     cout << "Adaptive Engine: " << adaptive_ms << " ms\n";
@@ -156,7 +156,7 @@ int main() {
     if (adaptive_ms < baseline_ms) {
         double saved = baseline_ms - adaptive_ms;
         double percentage = (saved / baseline_ms) * 100.0;
-        cout << "🔥 Your method won by " << saved << " ms (" << fixed << setprecision(1) << percentage << "% faster overall!)\n";
+        cout << " Your method won by " << saved << " ms (" << fixed << setprecision(1) << percentage << "% faster overall!)\n";
     } else {
         cout << "RocksDB won. (The workload was too short to pay off the migration cost).\n";
     }
